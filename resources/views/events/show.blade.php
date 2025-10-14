@@ -1,4 +1,10 @@
 <x-layouts.app title="Editar evento">
+    @session('success')
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            {{ session('success') }}
+        </div>
+    @endsession
+
     <div class="flex items-center justify-between gap-x-2">
         <h1 class="text-xl">Detalle del evento <b>{{ $event->name }}</b></h1>
         <div class="space-x-2">
@@ -8,34 +14,29 @@
     </div>
 
     <div class="flex justify-between items-center mt-6">
-        <h2 class="text-xl font-medium">Roles</h2>
-        <flux:button icon="plus">Agregar <span class="hidden sm:inline">rol</span></flux:button>
+        <h2 class="text-xl font-medium">Cargos</h2>
+        <flux:button href="{{ route('cargos.create') }}?event_id={{ $event->id }}" icon="plus">Agregar <span
+                class="hidden sm:inline">cargo</span></flux:button>
     </div>
     <div class="overflow-x-auto mt-5">
         <table class="w-full text-left">
             <thead>
                 <tr class="border-b">
-                    <td class="pb-3 px-3">Nombre</td>
-                    <td class="pb-3 px-3 w-px">Accion</td>
+                    <th class="pb-3 px-3">Nombre</th>
+                    <th class="pb-3 w-px text-right">Accion</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
-                @foreach ($events as $event)
+                @foreach ($cargos as $cargo)
                     <tr class="hover:bg-gray-50">
                         <td class="py-2 px-3">
-                            <a href="{{ route('events.show', $event->id) }}" class="hover:underline">
-                                {{ $event->name }} {{ $event->is_open ? 'Abierto' : 'Cerrado' }}
-                            </a>
+                            {{ $cargo->name }}
                         </td>
-                        <td class="py-2 px-3">{{ $event->is_open ? 'Abierto' : 'Cerrado' }}</td>
-                        <td class="py-2 px-3">
+                        <td class="py-2 w-px">
                             <div class="flex gap-x-2">
-                                <flux:button href="{{ route('events.edit', $event->id) }}">Editar</flux:button>
-                                <flux:button href="{{ route('events.delete', $event->id) }}" variant="danger"
+                                <flux:button href="{{ route('cargos.edit', $cargo->id) }}">Editar</flux:button>
+                                <flux:button href="{{ route('cargos.delete', $cargo->id) }}" variant="danger"
                                     icon="trash" />
-
-                                {{-- <flux:button href="{{ route('events.delete', $event->id) }}" variant="danger">Eliminar
-                                </flux:button> --}}
                             </div>
                         </td>
                     </tr>

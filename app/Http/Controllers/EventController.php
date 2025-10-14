@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cargo;
 use App\Models\Event;
 use Illuminate\Http\Request;
 
@@ -57,6 +58,7 @@ class EventController extends Controller
 
     function show(Event $event) {
         $events = Event::all();
-        return view('events.show', compact('event', 'events'));
+        $cargos = Cargo::get();
+        return view('events.show', compact('event', 'events', 'cargos'));
     }
 }

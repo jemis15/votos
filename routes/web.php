@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CargosController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\VotosController;
 use App\Livewire\Settings\Appearance;
@@ -43,6 +44,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/events/{event}/delete', [EventController::class, 'delete'])->name('events.delete');
     Route::delete('/events/{event}', [EventController::class, 'destroy'])->name('events.destroy');
     Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
+
+    Route::get('/cargos/create', [CargosController::class, 'create'])->name('cargos.create');
+    Route::post('/cargos', [CargosController::class, 'store'])->name('cargos.store');
+    Route::get('/cargos/{cargo}/edit', [CargosController::class, 'edit'])->name('cargos.edit');
+    Route::put('/cargos/{cargo}', [CargosController::class, 'update'])->name('cargos.update');
+    Route::get('/cargos/{cargo}/delete', [CargosController::class, 'delete'])->name('cargos.delete');
+    Route::delete('/cargos/{cargo}', [CargosController::class, 'destroy'])->name('cargos.destroy');
 });
 
 
