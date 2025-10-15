@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cargo;
 use App\Models\Event;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class CargosController extends Controller
 {
@@ -18,7 +19,14 @@ class CargosController extends Controller
     function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:20|unique:App\Models\Cargo,name',
+            'name' => [
+                'required',
+                'string',
+                'max:20',
+                Rule::unique('cargos', 'name')->where(function ($query) use ($request) {
+                    $query->where('event_id', $request->event_id);
+                })
+            ],
             'event_id' => 'required|exists:App\Models\Event,id'
         ]);
 
@@ -40,7 +48,15 @@ class CargosController extends Controller
     {
         $cargo = Cargo::findOrFail($id);
         $request->validate([
-            'name' => 'required|string|max:20|unique:App\Models\Cargo,name,' . $id,
+            'name' => [
+                'required',
+                'string',
+                'max:20',
+                Rule::unique('cargos')->where(function ($query) use ($request) {
+                    $query->where('event_id', $request->event_id)
+                        ->orWhere('name', $request->name);
+                })->ignore($request->event_id)
+            ]
         ]);
         $cargo->name = $request->name;
         $cargo->save();
