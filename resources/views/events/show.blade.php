@@ -48,34 +48,36 @@
     <div class="flex items-center mt-6">
         <h2 class="text-xl font-medium">Candidatos</h2>
         <flux:button icon="plus" class="ml-auto">Importar</flux:button>
-        <flux:button icon="plus" class="ml-3">Agregar <span class="hidden sm:inline">candidato</span></flux:button>
+        <flux:button href="{{ route('candidates.create') }}?event_id={{ $event->id }}" icon="plus" class="ml-3">Agregar <span
+                class="hidden sm:inline">candidato</span></flux:button>
     </div>
     <div class="overflow-x-auto mt-5">
-        <table class="w-full text-left">
+        <table class="w-full mt-4">
             <thead>
-                <tr class="border-b">
-                    <td class="pb-3 px-3">Nombre</td>
-                    <td class="pb-3 px-3 w-px">Accion</td>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Cargo</th>
+                    <th>Evento</th>
+                    <th>Foto</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
-                @foreach ($events as $event)
-                    <tr class="hover:bg-gray-50">
-                        <td class="py-2 px-3">
-                            <a href="{{ route('events.show', $event->id) }}" class="hover:underline">
-                                {{ $event->name }} {{ $event->is_open ? 'Abierto' : 'Cerrado' }}
-                            </a>
+            <tbody>
+                @foreach ($candidates as $candidate)
+                    <tr>
+                        <td>{{ $candidate->name }}</td>
+                        <td>{{ $candidate->cargo?->name }}</td>
+                        <td>{{ $candidate->event?->name }}</td>
+                        <td>
+                            @if ($candidate->photo_url)
+                                <img src="{{ $candidate->photo_url }}" alt="Foto" width="50">
+                            @endif
                         </td>
-                        <td class="py-2 px-3">{{ $event->is_open ? 'Abierto' : 'Cerrado' }}</td>
-                        <td class="py-2 px-3">
-                            <div class="flex gap-x-2">
-                                <flux:button href="{{ route('events.edit', $event->id) }}">Editar</flux:button>
-                                <flux:button href="{{ route('events.delete', $event->id) }}" variant="danger"
-                                    icon="trash" />
-
-                                {{-- <flux:button href="{{ route('events.delete', $event->id) }}" variant="danger">Eliminar
-                                </flux:button> --}}
-                            </div>
+                        <td>
+                            <a
+                                href="{{ route('candidates.show', $candidate->id) }}">Ver</a>
+                            <a href="{{ route('candidates.edit', $candidate->id) }}">Editar</a>
+                            <a href="{{ route('candidates.delete', $candidate->id) }}">Eliminar</a>
                         </td>
                     </tr>
                 @endforeach

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CandidateController;
 use App\Http\Controllers\CargosController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\VotosController;
@@ -51,6 +52,14 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/cargos/{cargo}', [CargosController::class, 'update'])->name('cargos.update');
     Route::get('/cargos/{cargo}/delete', [CargosController::class, 'delete'])->name('cargos.delete');
     Route::delete('/cargos/{cargo}', [CargosController::class, 'destroy'])->name('cargos.destroy');
+
+    Route::get('/candidates/create', [CandidateController::class, 'create'])->name('candidates.create');
+    Route::post('/candidates', [CandidateController::class, 'store'])->name('candidates.store');
+    Route::get('/candidates/{candidate}', [CandidateController::class, 'show'])->name('candidates.show');
+    Route::get('/candidates/{candidate}/edit', [CandidateController::class, 'edit'])->name('candidates.edit');
+    Route::put('/candidates/{candidate}', [CandidateController::class, 'update'])->name('candidates.update');
+    Route::get('/candidates/{candidate}/delete', [CandidateController::class, 'delete'])->name('candidates.delete');
+    Route::delete('/candidates/{candidate}', [CandidateController::class, 'destroy'])->name('candidates.destroy');
 });
 
 

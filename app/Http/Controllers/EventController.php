@@ -57,8 +57,9 @@ class EventController extends Controller
     }
 
     function show(Event $event) {
-        $events = [];
         $cargos = Cargo::where('event_id', $event->id)->get();
-        return view('events.show', compact('event', 'events', 'cargos'));
+        $candidates = $event->candidates;
+        $events = [];
+        return view('events.show', compact('event', 'cargos', 'candidates', 'events'));
     }
 }
