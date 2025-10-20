@@ -98,7 +98,12 @@ class CandidateController extends Controller
         return redirect()->route('events.show', $candidate->event_id)->with('success', 'Candidato eliminado correctamente.');
     }
 
-    function import() {
-        // \Maatwebsite\Excel\Facades\Excel::import(new CandidatesImport, )
+    function import(Request $request, Event $event) {
+        $request->validate([
+            'file_candidates' => 'required|file|mimetypes:text/plain,text/csv,application/csv,application/vnd.ms-excel'
+        ], [], [], 'import');
+
+        \Maatwebsite\Excel\Facades\Excel::import(new CandidatesImport($event), $request->file_candidates);
+        return redirect()->back()->with('success', 'Importado con exito !!');
     }
 }

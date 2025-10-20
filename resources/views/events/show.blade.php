@@ -45,39 +45,65 @@
         </table>
     </div>
 
+    <div>
+        @foreach ($errors->all() as $item)
+            <div>{{ $item }}</div>
+        @endforeach
+    </div>
+
     <div class="flex items-center mt-6">
         <h2 class="text-xl font-medium">Candidatos</h2>
-        <flux:button icon="plus" class="ml-auto">Importar</flux:button>
-        <flux:button href="{{ route('candidates.create') }}?event_id={{ $event->id }}" icon="plus" class="ml-3">Agregar <span
-                class="hidden sm:inline">candidato</span></flux:button>
+
+        <flux:modal.trigger name="upload-candidates">
+            <flux:button class="ml-auto">Importar</flux:button>
+        </flux:modal.trigger>
+
+        <flux:modal name="upload-candidates" class="min-w-sm">
+            <form method="post" action="{{ route('candidates.import', $event->id) }}" enctype="multipart/form-data">
+                @csrf
+                <div class="space-y-6">
+                    <flux:heading size="lg">Importar</flux:heading>
+                    <flux:input name="file_candidates" label="Archivo" type="file" />
+                    <div class="flex">
+                        <flux:spacer />
+                        <flux:button type="submit" variant="primary">Importar</flux:button>
+                    </div>
+                </div>
+            </form>
+        </flux:modal>
+
+        <flux:button href="{{ route('candidates.create') }}?event_id={{ $event->id }}" icon="plus"
+            class="ml-3">Agregar <span class="hidden sm:inline">candidato</span></flux:button>
     </div>
     <div class="overflow-x-auto mt-5">
         <table class="w-full mt-4">
             <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Cargo</th>
-                    <th>Evento</th>
-                    <th>Foto</th>
-                    <th>Acciones</th>
+                <tr class="border-b">
+                    <th class="py-2 px-3 text-left">Nombre</th>
+                    <th class="py-2 px-3 text-left">Documento</th>
+                    <th class="py-2 px-3 text-left">Cargo</th>
+                    <th class="py-2 px-3 text-left">Evento</th>
+                    <th class="py-2 px-3 text-left">Foto</th>
+                    <th class="py-2 px-3 text-left w-px">Acciones</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y divide-gray-200">
                 @foreach ($candidates as $candidate)
-                    <tr>
-                        <td>{{ $candidate->name }}</td>
-                        <td>{{ $candidate->cargo?->name }}</td>
-                        <td>{{ $candidate->event?->name }}</td>
-                        <td>
+                    <tr class="hover:bg-gray-50">
+                        <td class="py-2 px-3">{{ $candidate->name }}</td>
+                        <td class="py-2 px-3">{{ $candidate->identification }}</td>
+                        <td class="py-2 px-3">{{ $candidate->cargo?->name }}</td>
+                        <td class="py-2 px-3">{{ $candidate->event?->name }}</td>
+                        <td class="py-2 px-3">
                             @if ($candidate->photo_url)
                                 <img src="{{ $candidate->photo_url }}" alt="Foto" width="50">
                             @endif
                         </td>
-                        <td>
-                            <a
-                                href="{{ route('candidates.show', $candidate->id) }}">Ver</a>
-                            <a href="{{ route('candidates.edit', $candidate->id) }}">Editar</a>
-                            <a href="{{ route('candidates.delete', $candidate->id) }}">Eliminar</a>
+                        <td class="py-2 px-3">
+                            <div class="flex gap-x-2">
+                                <flux:button href="{{ route('candidates.edit', $candidate->id) }}" icon="pencil-square" />
+                                <flux:button href="{{ route('candidates.delete', $candidate->id) }}" icon="trash" />
+                            </div>
                         </td>
                     </tr>
                 @endforeach

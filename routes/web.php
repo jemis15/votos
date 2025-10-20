@@ -60,6 +60,8 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/candidates/{candidate}', [CandidateController::class, 'update'])->name('candidates.update');
     Route::get('/candidates/{candidate}/delete', [CandidateController::class, 'delete'])->name('candidates.delete');
     Route::delete('/candidates/{candidate}', [CandidateController::class, 'destroy'])->name('candidates.destroy');
+
+    Route::post('events/{event}/import-candidates', [CandidateController::class, 'import'])->name('candidates.import');
 });
 
 
