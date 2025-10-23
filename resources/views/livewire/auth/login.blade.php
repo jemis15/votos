@@ -7,13 +7,10 @@
     <form method="POST" wire:submit="login" class="flex flex-col gap-6">
         <!-- Email Address -->
         <flux:input
-            wire:model="email"
-            :label="__('Email address')"
-            type="email"
+            wire:model="user"
+            :label="__('DNI')"
             required
             autofocus
-            autocomplete="email"
-            placeholder="email@example.com"
         />
 
         <!-- Password -->

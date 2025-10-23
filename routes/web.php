@@ -4,6 +4,7 @@ use App\Http\Controllers\CandidateController;
 use App\Http\Controllers\CargosController;
 use App\Http\Controllers\ElectionController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\VoterController;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
@@ -73,6 +74,20 @@ Route::middleware(['auth'])->group(function () {
 
     Route::delete('elections/{election}', [ElectionController::class, 'destroy'])->name('elections.destroy');
     Route::post('elections/{election}/toggle-status', [ElectionController::class, 'toggleStatus'])->name('elections.toggle-status');
+
+    Route::get('users', [UserController::class, 'index'])->name('users');
+    Route::get('users', [UserController::class, 'create'])->name('users.create');
+
+    Route::get('/users', [App\Http\Controllers\UserController::class, 'index'])->name('users');
+    Route::get('/users/create', [App\Http\Controllers\UserController::class, 'create'])->name('users.create');
+    Route::post('/users', [App\Http\Controllers\UserController::class, 'store'])->name('users.store');
+    Route::get('/users/{user}', [App\Http\Controllers\UserController::class, 'show'])->name('users.show');
+    Route::get('/users/{user}/edit', [App\Http\Controllers\UserController::class, 'edit'])->name('users.edit');
+    Route::put('/users/{user}', [App\Http\Controllers\UserController::class, 'update'])->name('users.update');
+    Route::get('/users/{user}/delete', [App\Http\Controllers\UserController::class, 'delete'])->name('users.delete');
+    Route::delete('/users/{user}', [App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
+    Route::post('/users/{user}/reset-password', [App\Http\Controllers\UserController::class, 'resetPassword'])->name('users.reset-password');
+    Route::post('users/import', [UserController::class, 'import'])->name('users.import');
 });
 
 
