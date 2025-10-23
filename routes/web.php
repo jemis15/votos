@@ -3,7 +3,7 @@
 use App\Http\Controllers\CandidateController;
 use App\Http\Controllers\CargosController;
 use App\Http\Controllers\EventController;
-use App\Http\Controllers\VotosController;
+use App\Http\Controllers\VoterController;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
@@ -61,7 +61,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/candidates/{candidate}/delete', [CandidateController::class, 'delete'])->name('candidates.delete');
     Route::delete('/candidates/{candidate}', [CandidateController::class, 'destroy'])->name('candidates.destroy');
 
+    Route::get('voters/create', [VoterController::class, 'create'])->name('voters.create');
+    Route::post('voters', [VoterController::class, 'store'])->name('voters.store');
+    Route::delete('voters/{event}/{user}', [VoterController::class, 'destroy'])->name('voters.delete');
+
     Route::post('events/{event}/import-candidates', [CandidateController::class, 'import'])->name('candidates.import');
+    Route::post('events/{event}/import-voters', [VoterController::class, 'import'])->name('voters.import');
 });
 
 
