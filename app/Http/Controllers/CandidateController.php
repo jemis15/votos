@@ -106,4 +106,11 @@ class CandidateController extends Controller
         \Maatwebsite\Excel\Facades\Excel::import(new CandidatesImport($event), $request->file_candidates);
         return redirect()->back()->with('success', 'Importado con exito !!');
     }
+
+    function toggleElegible(Candidate $candidate) {
+        $candidate->eligible = !$candidate->eligible;
+        $candidate->save();
+
+        return redirect()->back()->with('success', 'Elegible');
+    }
 }

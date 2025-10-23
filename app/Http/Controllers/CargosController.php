@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cargo;
+use App\Models\Election;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -75,5 +76,14 @@ class CargosController extends Controller
         $event_id = $cargo->event_id;
         $cargo->delete();
         return redirect()->route('events.show', $event_id)->with('success', 'Cargo eliminado correctamente.');
+    }
+
+    function start(Cargo $cargo) {
+        $election = new Election();
+        $election->event_id = $cargo->event_id;
+        $election->cargo_id = $cargo->id;
+        $election->save();
+        
+        return redirect()->back()->with('success', 'Eleccion creado');
     }
 }

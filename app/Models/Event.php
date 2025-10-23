@@ -24,4 +24,8 @@ class Event extends Model
     {
         return $this->hasMany(Cargo::class);
     }
+
+    function elections() : HasMany {
+        return $this->hasMany(Election::class);
+    }
 }

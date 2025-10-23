@@ -66,9 +66,13 @@ class EventController extends Controller
     function show(Event $event)
     {
         $event->load([
-            'candidates', 
-            'cargos', 
-            'voters'
+            'candidates',
+            'cargos',
+            'voters',
+            'elections' => function ($query) {
+                $query->join('cargos', 'elections.cargo_id', 'cargos.id')
+                ->select('elections.*', 'cargos.name as cargo');
+            }
         ]);
 
         return view('events.show', [
@@ -77,5 +81,13 @@ class EventController extends Controller
             'candidates' => $event->candidates,
             'voters' => $event->voters
         ]);
+    }
+
+    function toggleStatus(Event $event)
+    {
+        $event->is_open = !$event->is_open;
+        $event->save();
+
+        return redirect()->back()->with('success', $event->is_open ? 'Evento abiento' : 'Evento cerrado');
     }
 }

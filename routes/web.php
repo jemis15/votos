@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CandidateController;
 use App\Http\Controllers\CargosController;
+use App\Http\Controllers\ElectionController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\VoterController;
 use App\Livewire\Settings\Appearance;
@@ -44,7 +45,10 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/events/{event}', [EventController::class, 'update'])->name('events.update');
     Route::get('/events/{event}/delete', [EventController::class, 'delete'])->name('events.delete');
     Route::delete('/events/{event}', [EventController::class, 'destroy'])->name('events.destroy');
-    Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
+    Route::get('events/{event}', [EventController::class, 'show'])->name('events.show');
+    Route::post('events/{event}/import-candidates', [CandidateController::class, 'import'])->name('candidates.import');
+    Route::post('events/{event}/import-voters', [VoterController::class, 'import'])->name('voters.import');
+    Route::post('events/{event}/toggle-status', [EventController::class, 'toggleStatus'])->name('events.toggle-status');
 
     Route::get('/cargos/create', [CargosController::class, 'create'])->name('cargos.create');
     Route::post('/cargos', [CargosController::class, 'store'])->name('cargos.store');
@@ -52,6 +56,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/cargos/{cargo}', [CargosController::class, 'update'])->name('cargos.update');
     Route::get('/cargos/{cargo}/delete', [CargosController::class, 'delete'])->name('cargos.delete');
     Route::delete('/cargos/{cargo}', [CargosController::class, 'destroy'])->name('cargos.destroy');
+    Route::post('cargos/{cargo}/start', [CargosController::class, 'start'])->name('events.cargos.start');
 
     Route::get('/candidates/create', [CandidateController::class, 'create'])->name('candidates.create');
     Route::post('/candidates', [CandidateController::class, 'store'])->name('candidates.store');
@@ -60,13 +65,14 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/candidates/{candidate}', [CandidateController::class, 'update'])->name('candidates.update');
     Route::get('/candidates/{candidate}/delete', [CandidateController::class, 'delete'])->name('candidates.delete');
     Route::delete('/candidates/{candidate}', [CandidateController::class, 'destroy'])->name('candidates.destroy');
+    Route::post('/candidates/{candidate}/toggle-elegible', [CandidateController::class, 'toggleElegible'])->name('candidates.toggle-elegible');
 
     Route::get('voters/create', [VoterController::class, 'create'])->name('voters.create');
     Route::post('voters', [VoterController::class, 'store'])->name('voters.store');
     Route::delete('voters/{event}/{user}', [VoterController::class, 'destroy'])->name('voters.delete');
 
-    Route::post('events/{event}/import-candidates', [CandidateController::class, 'import'])->name('candidates.import');
-    Route::post('events/{event}/import-voters', [VoterController::class, 'import'])->name('voters.import');
+    Route::delete('elections/{election}', [ElectionController::class, 'destroy'])->name('elections.destroy');
+    Route::post('elections/{election}/toggle-status', [ElectionController::class, 'toggleStatus'])->name('elections.toggle-status');
 });
 
 
