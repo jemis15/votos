@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Candidate extends Model
 {
@@ -15,5 +16,9 @@ class Candidate extends Model
 
     function event() : BelongsTo {
         return $this->belongsTo(Event::class);
+    }
+
+    function votes() : HasMany {
+        return $this->hasMany(Vote::class);
     }
 }

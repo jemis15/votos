@@ -67,4 +67,8 @@ class User extends Authenticatable
     function events() : BelongsToMany {
         return $this->belongsToMany(Event::class, 'voters');
     }
+
+    function votes() {
+        return $this->hasMany(Election::class, 'votes');
+    }
 }

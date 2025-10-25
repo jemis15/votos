@@ -2,9 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\UpdateEvent;
+use App\Models\Candidate;
 use App\Models\Cargo;
+use App\Models\Election;
 use App\Models\Event;
+use App\Models\Vote;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rules\Can;
+
+use function Laravel\Prompts\select;
 
 class EventController extends Controller
 {
@@ -71,7 +79,7 @@ class EventController extends Controller
             'voters',
             'elections' => function ($query) {
                 $query->join('cargos', 'elections.cargo_id', 'cargos.id')
-                ->select('elections.*', 'cargos.name as cargo');
+                    ->select('elections.*', 'cargos.name as cargo');
             }
         ]);
 
@@ -88,6 +96,58 @@ class EventController extends Controller
         $event->is_open = !$event->is_open;
         $event->save();
 
+        // broadcast(new UpdateEvent($event));
+        event(new UpdateEvent($event));
+
         return redirect()->back()->with('success', $event->is_open ? 'Evento abiento' : 'Evento cerrado');
+    }
+
+    function live(Event $event)
+    {
+        $event->load(
+            'voters',
+            'cargos',
+            'candidates'
+        );
+
+        $winners = $event->candidates()->whereNotNull('cargo_id')->get();
+
+        $eligibles = [];
+        $election = null;
+        $votes = [];
+
+        if ($event->is_open) {
+            $eligibles = $event->candidates()->where('eligible', true)->get();
+
+            $election = Election::join('cargos', 'elections.cargo_id', 'cargos.id')
+                ->whereIn('status', ['open', 'closed'])
+                ->select('elections.*', 'cargos.name as cargo')
+                ->orderBy('id', 'desc')
+                ->first();
+        }
+
+        if ($election) {
+            $votes = Vote::where('election_id', $election->id)->get();
+        }
+
+
+        $summaryVotes = Vote::join('candidates', 'votes.candidate_id', 'candidates.id')
+            ->where('candidates.event_id', $event->id)
+            ->groupBy('candidates.id')
+            ->select(
+                'candidates.id as candidate_id',
+                DB::raw('count(votes.candidate_id) as votes')
+            )
+            ->get();
+
+
+        return view('events.public-live', compact(
+            'event',
+            'eligibles',
+            'election',
+            'winners',
+            'summaryVotes',
+            'votes'
+        ));
     }
 }

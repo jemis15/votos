@@ -15,6 +15,11 @@
             @endif
         </h1>
         <div class="space-x-2">
+            @if ($event->is_open)
+                <flux:button href="{{ route('events.live', $event->id) }}" icon="signal" color="red" variant="primary">
+                    Live</flux:button>
+            @endif
+
             <flux:button href="{{ route('events.edit', $event->id) }}" icon="pencil-square">Editar evento</flux:button>
 
             <flux:modal.trigger name="open-event">

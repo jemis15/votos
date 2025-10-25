@@ -20,7 +20,7 @@ class UsersImport implements ToModel, WithValidation
             'identification' => $row[0],
             'name' => $row[1],
             'email' => $row[2],
-            'password' => Hash::make($row[1])
+            'password' => Hash::make($row[0])
         ]);
     }
 

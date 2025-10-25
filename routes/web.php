@@ -4,8 +4,10 @@ use App\Http\Controllers\CandidateController;
 use App\Http\Controllers\CargosController;
 use App\Http\Controllers\ElectionController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\RoomController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VoterController;
+use App\Livewire\Events\Live;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
@@ -21,7 +23,7 @@ Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'admin'])->group(function () {
     Route::redirect('settings', 'settings/profile');
 
     Route::get('settings/profile', Profile::class)->name('settings.profile');
@@ -88,7 +90,13 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/users/{user}', [App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
     Route::post('/users/{user}/reset-password', [App\Http\Controllers\UserController::class, 'resetPassword'])->name('users.reset-password');
     Route::post('users/import', [UserController::class, 'import'])->name('users.import');
+
+    Route::get('events/{event}/live', [EventController::class, 'live'])->name('events.live');
 });
 
+Route::middleware(['auth'])->group(function () {
+    Route::post('register-vote', [RoomController::class, 'registerVote']);
+    Route::get('rooms/{room}', [RoomController::class, 'index']);
+});
 
 require __DIR__ . '/auth.php';
