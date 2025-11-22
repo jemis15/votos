@@ -53,9 +53,10 @@
                 @foreach ($users as $user)
                     <tr class="hover:bg-gray-50">
                         <td class="py-2 px-3">
-                            <a href="{{ route('events.show', $user->id) }}" class="hover:underline">
-                                {{ $user->name }}
-                            </a>
+                            <div class="flex items-center gap-x-2">
+                                <flux:avatar src="{{ $user->image_url }}" name="{{ $user->name }}" initials:single />
+                                <flux:heading size="lg">{{ $user->name }}</flux:heading>
+                            </div>
                         </td>
                         <td class="py-2 px-3">{{ $user->identification }}</td>
                         <td class="py-2 px-3">{{ $user->email }}</td>

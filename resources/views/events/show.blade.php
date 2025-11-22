@@ -5,6 +5,12 @@
         </div>
     @endsession
 
+    @session('error')
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {{ session('error') }}
+        </div>
+    @endsession
+
     <div class="flex items-center justify-between gap-x-2">
         <h1 class="text-xl">
             Detalle del evento <b>{{ $event->name }}</b>
@@ -15,6 +21,11 @@
             @endif
         </h1>
         <div class="space-x-2">
+            <flux:button href="{{ route('events.live', $event->id) }}" icon="signal" color="red" variant="primary"
+                target="_blank">
+                Live
+            </flux:button>
+
             <flux:button href="{{ route('events.edit', $event->id) }}" icon="pencil-square">Editar evento</flux:button>
 
             <flux:modal.trigger name="open-event">
@@ -48,6 +59,7 @@
                 <thead>
                     <tr class="border-b">
                         <th class="pb-3 px-3">Cargo</th>
+                        <th class="pb-3 px-3">Elejibles</th>
                         <th class="pb-3 w-px text-right">Accion</th>
                     </tr>
                 </thead>
@@ -62,9 +74,15 @@
                                     <flux:badge color="gray">Cerrado</flux:badge>
                                 @endif
                             </td>
+                            <td class="py-2 px-3">
+                                @foreach ($election->candidates as $candidate)
+                                    <div>{{ $candidate->name }}</div>
+                                @endforeach
+                            </td>
                             <td class="py-2 w-px">
                                 <div class="flex gap-x-2">
-                                    <form action="{{ route('elections.toggle-status', $election->id) }}" method="post">
+                                    <form action="{{ route('elections.toggle-status', $election->id) }}"
+                                        method="post">
                                         @csrf
                                         <flux:button type="submit">Empezar</flux:button>
                                     </form>
@@ -130,8 +148,11 @@
                         <td class="py-2 w-px">
                             <div class="flex gap-x-2">
                                 @if ($event->is_open && !$election?->is_open)
-                                    <form action="{{ route('events.cargos.start', $cargo->id) }}" method="post">
+                                    {{-- <form action="{{ route('events.cargos.start', $cargo->id) }}" method="post"> --}}
+                                    <form action="{{ route('elections.store') }}" method="post">
                                         @csrf
+                                        <input type="hidden" name="cargo_id" value="{{ $cargo->id }}">
+                                        <input type="hidden" name="event_id" value="{{ $event->id }}">
                                         <flux:button type="submit">Iniciar</flux:button>
                                     </form>
                                 @endif
@@ -183,42 +204,40 @@
                     <th class="py-2 px-3 text-left">Nombre</th>
                     <th class="py-2 px-3 text-left">Documento</th>
                     <th class="py-2 px-3 text-left">Cargo</th>
-                    <th class="py-2 px-3 text-left">Elejible</th>
-                    <th class="py-2 px-3 text-left">Foto</th>
                     <th class="py-2 px-3 text-left w-px">Acciones</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
                 @foreach ($candidates as $candidate)
                     <tr class="hover:bg-gray-50">
-                        <td class="py-2 px-3">{{ $candidate->name }}</td>
+                        <td class="py-2 px-3">
+                            <div class="flex gap-3 items-center">
+                                <flux:avatar src="{{ $candidate->image_url }}" name="{{ $candidate->name }}"
+                                    initials:single />
+                                <span>{{ $candidate->name }}</span>
+                            </div>
+                        </td>
                         <td class="py-2 px-3">{{ $candidate->identification }}</td>
                         <td class="py-2 px-3">{{ $candidate->cargo?->name }}</td>
                         <td class="py-2 px-3">
-                            @if ($candidate->eligible)
-                                <flux:badge color="lime">Elegible</flux:badge>
-                            @else
-                                <flux:badge color="gray">No elegible</flux:badge>
-                            @endif
-                        </td>
-                        <td class="py-2 px-3">
-                            @if ($candidate->photo_url)
-                                <img src="{{ $candidate->photo_url }}" alt="Foto" width="50">
-                            @endif
-                        </td>
-                        <td class="py-2 px-3">
                             <div class="flex gap-x-2">
-                                @if ($candidate->cargo_id === null)
-                                    <form action="{{ route('candidates.toggle-elegible', $candidate->id) }}"
+                                @if ($candidate->cargo_id === null && $event->elections->contains('status', 'created'))
+                                    <form
+                                        action="{{ route('elections.candidates.toggle', $event->elections->firstWhere('status', 'created')) }}"
                                         method="post">
                                         @csrf
-                                        <flux:button type="submit">Elegible</flux:button>
+                                        <input type="hidden" name="candidate_id" value="{{ $candidate->id }}">
+                                        <flux:button type="submit">
+                                            {{ $event->elections->firstWhere('status', 'created')->candidates->contains($candidate->id) ? 'Quitar' : 'Agregar' }}
+                                        </flux:button>
                                     </form>
                                 @endif
-                                <flux:button href="{{ route('candidates.edit', $candidate->id) }}"
-                                    icon="pencil-square" />
-                                <flux:button href="{{ route('candidates.delete', $candidate->id) }}"
-                                    icon="trash" />
+                                <form action="{{ route('rooms.candidates.destroy', [$event->id, $candidate->id]) }}"
+                                    method="post">
+                                    @csrf
+                                    @method('delete')
+                                    <flux:button type="submit" icon="trash" variant="danger" />
+                                </form>
                             </div>
                         </td>
                     </tr>
@@ -265,7 +284,11 @@
                 @foreach ($voters as $voter)
                     <tr class="hover:bg-gray-50">
                         <td class="py-2 px-3">
-                            {{ $voter->name }}
+                            <div class="flex gap-3 items-center">
+                                <flux:avatar src="{{ $voter->image_url }}" name="{{ $voter->name }}"
+                                    initials:single />
+                                <span>{{ $voter->name }}</span>
+                            </div>
                         </td>
                         <td class="py-2 px-3">
                             {{ $voter->identification }}

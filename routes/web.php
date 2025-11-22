@@ -4,6 +4,7 @@ use App\Http\Controllers\CandidateController;
 use App\Http\Controllers\CargosController;
 use App\Http\Controllers\ElectionController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\RoomController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VoterController;
 use App\Livewire\Settings\Appearance;
@@ -13,9 +14,7 @@ use App\Livewire\Settings\TwoFactor;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+Route::redirect('/', '/login')->name('home');
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
@@ -60,18 +59,15 @@ Route::middleware(['auth'])->group(function () {
     Route::post('cargos/{cargo}/start', [CargosController::class, 'start'])->name('events.cargos.start');
 
     Route::get('/candidates/create', [CandidateController::class, 'create'])->name('candidates.create');
-    Route::post('/candidates', [CandidateController::class, 'store'])->name('candidates.store');
-    Route::get('/candidates/{candidate}', [CandidateController::class, 'show'])->name('candidates.show');
-    Route::get('/candidates/{candidate}/edit', [CandidateController::class, 'edit'])->name('candidates.edit');
-    Route::put('/candidates/{candidate}', [CandidateController::class, 'update'])->name('candidates.update');
-    Route::get('/candidates/{candidate}/delete', [CandidateController::class, 'delete'])->name('candidates.delete');
-    Route::delete('/candidates/{candidate}', [CandidateController::class, 'destroy'])->name('candidates.destroy');
-    Route::post('/candidates/{candidate}/toggle-elegible', [CandidateController::class, 'toggleElegible'])->name('candidates.toggle-elegible');
+    Route::delete('events/{event}/candidates/{candidate}', [CandidateController::class, 'destroy'])->name('rooms.candidates.destroy');
+    
+    Route::post('/elections/{election}/candidates/toggle', [ElectionController::class, 'toggleCandidate'])->name('elections.candidates.toggle');
 
     Route::get('voters/create', [VoterController::class, 'create'])->name('voters.create');
     Route::post('voters', [VoterController::class, 'store'])->name('voters.store');
     Route::delete('voters/{event}/{user}', [VoterController::class, 'destroy'])->name('voters.delete');
 
+    Route::post('elections', [ElectionController::class, 'store'])->name('elections.store');
     Route::delete('elections/{election}', [ElectionController::class, 'destroy'])->name('elections.destroy');
     Route::post('elections/{election}/toggle-status', [ElectionController::class, 'toggleStatus'])->name('elections.toggle-status');
 
@@ -88,6 +84,10 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/users/{user}', [App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
     Route::post('/users/{user}/reset-password', [App\Http\Controllers\UserController::class, 'resetPassword'])->name('users.reset-password');
     Route::post('users/import', [UserController::class, 'import'])->name('users.import');
+
+    Route::get('events/{event}/live', [EventController::class, 'live'])->name('events.live');
+    Route::post('register-vote', [RoomController::class, 'registerVote']);
+    Route::get('rooms/{room}', [RoomController::class, 'index']);
 });
 
 

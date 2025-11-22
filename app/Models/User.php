@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -37,6 +38,7 @@ class User extends Authenticatable
         'two_factor_secret',
         'two_factory_recovery_codes',
         'remember_token',
+        'profile_photo_path'
     ];
 
     /**
@@ -52,6 +54,8 @@ class User extends Authenticatable
         ];
     }
 
+    protected $appends = ['image_url'];
+
     /**
      * Get the user's initials
      */
@@ -64,7 +68,25 @@ class User extends Authenticatable
             ->implode('');
     }
 
+    public function getImageUrlAttribute()
+    {
+        if (!$this->profile_photo_path) {
+            return null; // Imagen por defecto si no tiene
+        }
+
+        // Si la imagen se guardó con store('images', 'public')
+        return \Illuminate\Support\Facades\Storage::url($this->profile_photo_path);
+    }
+
     function events() : BelongsToMany {
         return $this->belongsToMany(Event::class, 'voters');
+    }
+
+    function votes() {
+        return $this->hasMany(Election::class, 'votes');
+    }
+
+    function cargo() : BelongsTo {
+        return $this->belongsTo(Cargo::class);
     }
 }

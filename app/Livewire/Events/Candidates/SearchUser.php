@@ -40,10 +40,28 @@ class SearchUser extends Component
 
     function handleSelectUser($userId)
     {
-        if (!$this->event->voters()->where('user_id', $userId)->exists()) {
-            $this->event->voters()->attach($userId);
-            $this->userInEvent[] = $userId;
+        $existing = $this->event->users()->where('user_id', $userId)->first();
+
+        if ($existing && in_array($existing->pivot->role_in_room, ['voter', 'both'])) {
+            // Si ya es voter o both, no hacemos nada
+            return;
         }
+
+        if ($existing && $existing->pivot->role_in_room === 'candidate') {
+            // Si está como candidate -> actualizar a both
+            $this->event->users()->updateExistingPivot($userId, [
+                'role_in_room' => 'both'
+            ]);
+        }
+
+        if (!$existing) {
+            // No existe en la sala -> agregar como voter
+            $this->event->users()->attach($userId, [
+                'role_in_room' => 'voter'
+            ]);
+        }
+
+        $this->userInEvent[] = $userId;
     }
 
     public function render()

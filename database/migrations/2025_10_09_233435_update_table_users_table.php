@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-         Schema::table('users', function (Blueprint $table) {
-            $table->string('identification')->unique()->after('name');
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('profile_photo_path')->nullable()->after('email_verified_at');
+            $table->string('identification', '8')->unique()->after('name');
             $table->string('email')->nullable()->change();
-            $table->enum('role', ['admin', 'user'])->default('user')->after('password');
+            $table->enum('role', ['admin', 'user'])->default('user')->after('email_verified_at');
         });
     }
 
@@ -27,6 +28,7 @@ return new class extends Migration
             $table->string('email')->nullable(false)->change();
             $table->dropColumn('identification');
             $table->dropColumn('role');
+            $table->dropColumn('profile_photo_path');
         });
     }
 };

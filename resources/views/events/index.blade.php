@@ -24,7 +24,7 @@
                     <tr class="hover:bg-gray-50">
                         <td class="py-2 px-3">
                             <a href="{{route("events.show", $event->id)}}" class="hover:underline">
-                                {{ $event->name }} {{ $event->is_open ? 'Abierto' : 'Cerrado' }}
+                                {{ $event->name }}
                             </a>
                         </td>
                         <td class="py-2 px-3">{{ $event->is_open ? 'Abierto' : 'Cerrado' }}</td>

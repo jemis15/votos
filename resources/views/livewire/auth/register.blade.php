@@ -8,18 +8,29 @@
         <!-- Name -->
         <flux:input
             wire:model="name"
-            :label="__('Name')"
+            :label="__('Nombre')"
             type="text"
             required
             autofocus
             autocomplete="name"
-            :placeholder="__('Full name')"
+            :placeholder="__('Apellidos y nombres')"
+        />
+
+        <!-- Name -->
+        <flux:input
+            wire:model="identification"
+            label="DNI"
+            type="number"
+            required
+            autofocus
+            autocomplete="name"
+            placeholder="Numero de identification"
         />
 
         <!-- Email Address -->
         <flux:input
             wire:model="email"
-            :label="__('Email address')"
+            :label="__('Correo')"
             type="email"
             required
             autocomplete="email"

@@ -15,10 +15,19 @@ class VoterController extends Controller
         return view('voters.create', compact('event'));
     }
 
-    function destroy(string $eventId, string $userId) {
-        Voter::where(['event_id' => $eventId, 'user_id' => $userId])->delete();
+    function destroy(Event $event, string $userId) {
+        $voter = $event->users()->findOrFail($userId);
 
-        return redirect()->route('events.show', $eventId)->with('success', 'Eliminado con exito!');
+        if ($voter->pivot->role_in_room === 'both') {
+            // Si está como both -> actualizar a candidate
+            $event->users()->updateExistingPivot($userId, [
+                'role_in_room' => 'candidate'
+            ]);
+        }else {
+            $event->users()->detach($userId);
+        }
+
+        return redirect()->route('events.show', $event->id)->with('success', 'Eliminado con exito!');
     }
 
     function import(Request $request, Event $event)

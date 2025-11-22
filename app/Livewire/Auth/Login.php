@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Auth;
 
+use App\Models\Event;
 use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Support\Facades\Auth;
@@ -52,6 +53,17 @@ class Login extends Component
         RateLimiter::clear($this->throttleKey());
         Session::regenerate();
 
+        if ($user->role === 'user') {
+            $event = Event::first();
+
+            if (!$event) {
+                return;
+            }
+
+            $this->redirectIntended("rooms/$event->id", navigate: true);
+            return;
+        }
+
         $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
     }
 
@@ -61,7 +73,7 @@ class Login extends Component
     protected function validateCredentials(): User
     {
         $user = Auth::getProvider()->retrieveByCredentials([
-            'identification' => $this->user, 
+            'identification' => $this->user,
             'password' => $this->password
         ]);
 
@@ -102,6 +114,6 @@ class Login extends Component
      */
     protected function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->user).'|'.request()->ip());
+        return Str::transliterate(Str::lower($this->user) . '|' . request()->ip());
     }
 }

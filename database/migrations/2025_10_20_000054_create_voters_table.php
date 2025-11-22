@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('voters', function (Blueprint $table) {
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('event_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('voter_id')->constrained('users')->cascadeOnDelete();
 
-            $table->primary(['user_id', 'event_id']);
+            $table->primary(['event_id', 'voter_id']);
         });
     }
 

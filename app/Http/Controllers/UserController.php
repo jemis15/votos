@@ -6,6 +6,7 @@ use App\Imports\UsersImport;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -26,11 +27,18 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:100',
             'identification' => 'required|string|digits:8|unique:users,identification',
-            'email' => 'nullable|string|max:100|unique:users,email'
+            'email' => 'nullable|string|max:100|unique:users,email',
+            'profile_photo_path' => 'nullable|image|max:2048',
         ]);
+
+        $path = null;
+        if ($request->hasFile('profile_photo_path')) {
+            $path = $request->file('profile_photo_path')->store('profiles', 'public');
+        }
 
         $user = new User();
         $user->fill($request->only('name', 'identification', 'email'));
+        $user->profile_photo_path = $path;
         $user->password = Hash::make($request->identification);
         $user->save();
 
@@ -47,8 +55,19 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:100',
             'identification' => 'required|string|digits:8|unique:users,identification,' . $user->id,
-            'email' => 'nullable|string|max:100|unique:users,email,' . $user->id
+            'email' => 'nullable|string|max:100|unique:users,email,' . $user->id,
+            'profile_photo_path' => 'nullable|image|max:2048'
         ]);
+
+        if ($request->hasFile('profile_photo_path')) {
+            // Elimina la foto anterior si existe
+            if ($user->profile_photo_path) {
+                $oldPath = str_replace('/storage/', '', $user->profile_photo_path);
+                Storage::disk('public')->delete($oldPath);
+            }
+            $path = $request->file('profile_photo_path')->store('profiles', 'public');
+            $user->profile_photo_path = $path;
+        }
 
         $user->fill($request->only('name', 'identification', 'email'));
         $user->save();
