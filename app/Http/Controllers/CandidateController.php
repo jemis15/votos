@@ -54,42 +54,39 @@ class CandidateController extends Controller
         return view('candidates.show', compact('candidate'));
     }
 
-    public function edit(Candidate $candidate)
+    public function edit(Event $room)
     {
-        $event = $candidate->event;
-        $cargos = Cargo::where('event_id', $event->id)
-            ->get();
+        $candidate = $room->candidates()
+            ->where('users.id', request()->route('candidate'))
+            ->firstOrFail();
 
-        return view('candidates.edit', compact('candidate', 'event', 'cargos'));
+        // Cargos que ya estan asignados excluyendo el del candidato actual
+        $cargosFilled = $room->candidates()
+            ->wherePivotNotNull('cargo_id')
+            ->get(['users.id'])
+            ->filter(fn ($c) => $c->pivot->cargo_id !== $candidate->pivot->cargo_id)
+            ->pluck('pivot.cargo_id');
+
+        // Cargos disponibles para asignar
+        $cargos = $room->cargos()->whereNotIn('id', $cargosFilled)->get();
+
+        return view('candidates.edit', compact('room', 'candidate', 'cargos'));
     }
 
-    public function update(Request $request, Candidate $candidate)
+    public function update(Request $request, Event $room)
     {
         $request->validate([
-            'name' => 'required|string|max:100',
-            'identification' => 'required|numeric|digits:8',
-            'photo_url' => 'nullable|image|max:2048',
             'cargo_id' => 'nullable|exists:cargos,id',
         ]);
 
-        if ($request->hasFile('photo_url')) {
-            // Elimina la foto anterior si existe
-            if ($candidate->photo_url) {
-                $oldPath = str_replace('/storage/', '', $candidate->photo_url);
-                Storage::disk('public')->delete($oldPath);
-            }
-            $path = $request->file('photo_url')->store('candidates', 'public');
-            $candidate->photo_url = Storage::url($path);
-        }
+        $room->users()->updateExistingPivot(request()->route('candidate'), [
+            'cargo_id' => $request->cargo_id,
+        ]);
 
-        $candidate->cargo_id = $request->cargo_id;
-        $candidate->name = $request->name;
-        $candidate->save();
-
-        event(new UpdateCandidateCargo($candidate->event_id, $candidate));
+        // event(new UpdateCandidateCargo($candidate->event_id, $candidate));
 
         return redirect()
-            ->route('events.show', $candidate->event_id)
+            ->route('events.show', $room->id)
             ->with('success', 'Candidato actualizado correctamente.');
     }
 

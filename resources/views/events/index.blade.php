@@ -1,6 +1,6 @@
 <x-layouts.app title="Eventos">
     <div class="flex justify-between items-center mb-4">
-        <h1 class="text-xl">Eventos</h1>
+        <flux:heading size="xl" level="1">Eventos</flux:heading>
         <flux:button href="{{ route('events.create') }}">Crear evento</flux:button>
     </div>
 
@@ -13,7 +13,7 @@
     <div class="overflow-x-auto">
         <table class="w-full text-left">
             <thead>
-                <tr class="border-b">
+                <tr class="border-b dark:border-b-gray-700">
                     <td class="pb-3 px-3">Nombre</td>
                     <td class="pb-3 px-3">Estado</td>
                     <td class="pb-3 px-3 w-px">Accion</td>
@@ -21,13 +21,19 @@
             </thead>
             <tbody class="divide-y divide-gray-200">
                 @foreach ($events as $event)
-                    <tr class="hover:bg-gray-50">
+                    <tr class="hover:bg-gray-50 dark:hover:bg-zinc-700">
                         <td class="py-2 px-3">
-                            <a href="{{route("events.show", $event->id)}}" class="hover:underline">
+                            <a wire:navigate href="{{route("events.show", $event->id)}}" class="hover:underline">
                                 {{ $event->name }}
                             </a>
                         </td>
-                        <td class="py-2 px-3">{{ $event->is_open ? 'Abierto' : 'Cerrado' }}</td>
+                        <td class="py-2 px-3">
+                            @if ($event->is_open)
+                            <flux:badge color="green">Abierto</flux:badge>
+                                @else
+                                <flux:badge color="gray">Cerrado</flux:badge>
+                            @endif
+                        </td>
                         <td class="py-2 px-3">
                             <div class="flex gap-x-2">
                                 <flux:button href="{{ route('events.edit', $event->id) }}">Editar</flux:button>

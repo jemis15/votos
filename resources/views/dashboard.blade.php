@@ -1,24 +1,27 @@
 <x-layouts.app :title="__('Dashboard')">
-    <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl">
-        <div class="grid auto-rows-min gap-4 md:grid-cols-3">
-            <div
-                class="relative aspect-video overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">
-                <x-placeholder-pattern
-                    class="absolute inset-0 size-full stroke-gray-900/20 dark:stroke-neutral-100/20" />
-            </div>
-            <div
-                class="relative aspect-video overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">
-                <x-placeholder-pattern
-                    class="absolute inset-0 size-full stroke-gray-900/20 dark:stroke-neutral-100/20" />
-            </div>
-            <div
-                class="relative aspect-video overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">
-                <x-placeholder-pattern
-                    class="absolute inset-0 size-full stroke-gray-900/20 dark:stroke-neutral-100/20" />
-            </div>
-        </div>
-        <div class="relative h-full flex-1 overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">
-            <x-placeholder-pattern class="absolute inset-0 size-full stroke-gray-900/20 dark:stroke-neutral-100/20" />
-        </div>
-    </div>
+    <h2 class="text-xl font-medium">Salas disponibles</h2>
+
+    <ul class="mt-4 grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4">
+        @forelse ($rooms as $room)
+            <li>
+                <a href="{{ route('rooms.register-votes', $room->id) }}" wire:navigate>
+                    <div class="border dark:border-gray-700 rounded-lg p-4 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <flux:heading class="flex items-center gap-2">
+                            {{ $room->name }}
+                            @if ($room->is_open)
+                                <flux:badge color="green" size="sm">Abierto</flux:badge>
+                            @else
+                                <flux:badge color="gray" size="sm">Cerrado</flux:badge>
+                            @endif
+                            <flux:icon name="arrow-right" class="ml-auto text-zinc-400" variant="micro" />
+                        </flux:heading>
+                    </div>
+                </a>
+            </li>
+        @empty
+            <li class="col-span-full text-center text-gray-500">
+                No tienes salas disponibles.
+            </li>
+        @endforelse
+    </ul>
 </x-layouts.app>

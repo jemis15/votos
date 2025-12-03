@@ -2,11 +2,14 @@
 
 use App\Http\Controllers\CandidateController;
 use App\Http\Controllers\CargosController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ElectionController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VoterController;
+use App\Livewire\Rooms\CreateElections;
+use App\Livewire\Rooms\Elections\Index as ElectionsIndex;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
@@ -16,7 +19,7 @@ use Laravel\Fortify\Features;
 
 Route::redirect('/', '/login')->name('home');
 
-Route::view('dashboard', 'dashboard')
+Route::get('dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
@@ -87,7 +90,14 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('events/{event}/live', [EventController::class, 'live'])->name('events.live');
     Route::post('register-vote', [RoomController::class, 'registerVote']);
-    Route::get('rooms/{room}', [RoomController::class, 'index']);
+    Route::get('rooms/{room}', [RoomController::class, 'index'])->name('rooms.register-votes');
+
+    Route::get('rooms/{room}/elections', ElectionsIndex::class)->name('rooms.elections.index');
+
+    Route::get('rooms/{room}/elections/create', CreateElections::class)->name('rooms.elections.create');
+
+    Route::get('rooms/{room}/candidates/{candidate}/edit', [CandidateController::class, 'edit'])->name('rooms.candidates.edit');
+    Route::put('rooms/{room}/candidates/{candidate}', [CandidateController::class, 'update'])->name('rooms.candidates.update');
 });
 
 

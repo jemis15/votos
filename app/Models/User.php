@@ -64,7 +64,7 @@ class User extends Authenticatable
         return Str::of($this->name)
             ->explode(' ')
             ->take(2)
-            ->map(fn ($word) => Str::substr($word, 0, 1))
+            ->map(fn($word) => Str::substr($word, 0, 1))
             ->implode('');
     }
 
@@ -78,15 +78,19 @@ class User extends Authenticatable
         return \Illuminate\Support\Facades\Storage::url($this->profile_photo_path);
     }
 
-    function events() : BelongsToMany {
-        return $this->belongsToMany(Event::class, 'voters');
+    function events(): BelongsToMany
+    {
+        return $this->belongsToMany(Event::class, 'room_user', 'user_id', 'room_id')
+            ->wherePivotIn('role_in_room', ['voter', 'both']);
     }
 
-    function votes() {
+    function votes()
+    {
         return $this->hasMany(Election::class, 'votes');
     }
 
-    function cargo() : BelongsTo {
+    function cargo(): BelongsTo
+    {
         return $this->belongsTo(Cargo::class);
     }
 }

@@ -38,7 +38,7 @@
     </style>
 </head>
 
-<body x-data="data" class="h-screen flex flex-col">
+<body x-data="data" class="dark:bg-zinc-800">
 
     {{-- <h2 class="px-6 text-2xl font-bold mt-4">Resultados</h2>
         <div class="flex gap-x-4 p-6">
@@ -122,7 +122,8 @@
     <template x-if="!room.is_open">
         <div class="h-dvh flex flex-col items-center justify-center max-w-xl mx-auto px-6 md:px-0">
             <div>
-                <img src="{{ asset('images/logo.png') }}" class="max-w-64 max-h-36" alt="logo denec">
+                <img src="{{ asset('images/logo.png') }}" class="w-64 dark:hidden" alt="logo denec">
+                <img src="{{ asset('images/logo-blank.png') }}" class="w-64 hidden dark:block" alt="logo denec">
             </div>
             <h2 class="font-medium text-xl mt-12">{{ $event->name }}</h2>
             <div class="mt-2">Bienvenidos, espere la apertura de esta sala.</div>
@@ -131,6 +132,9 @@
 
     <template x-if="room.is_open">
         <div class="mr-64 pb-24">
+            <img src="{{ asset('images/logo.png') }}" class="absolute top-0 left-4 w-64 dark:hidden" alt="logo denec">
+            <img src="{{ asset('images/logo-blank.png') }}" class="absolute top-0 left-4 w-64 hidden dark:block"
+                alt="logo denec">
             <div class="flex flex-col">
 
                 <div class="text-center font-medium mt-5">Sistema de votaciones en tiempo real</div>
@@ -145,33 +149,30 @@
                     </div>
                     <div class="flex gap-x-2">
                         <flux:icon.crown class="text-yellow-500" />
-                        <span x-text="'Se require ' + Math.ceil(votosNesesariosParaGanar) + ' votos'"></span>
+                        <span x-show="votosNesesariosParaGanar > 0"
+                            x-text="'Se require ' + Math.ceil(votosNesesariosParaGanar) + ' votos'"></span>
                     </div>
                 </div>
 
-                <template x-if="getCurrentElection()">
+                <template x-if="election && election.status === 'open'">
                     <div class="mt-12">
                         <div class="text-center text-xl font-medium"
-                            x-text="'Candidatos para ' + cargos.get(getCurrentElection().cargo_id).name"></div>
+                            x-text="'Candidatos para ' + cargos.get(election.cargo_id).name"></div>
                         <div class="flex flex-wrap justify-center gap-5 mt-5">
-                            <template x-for="eligible in getCurrentElection().candidates">
+                            <template x-for="eligible in election.candidates">
                                 <div class="relative">
-                                    <div class="absolute left-0 right-0 -top-4 flex justify-center" x-show="totalVotesByCandidate(eligible) >= votosNesesariosParaGanar">
-                                        <flux:icon.crown class="size-8" />
-                                    </div>
-                                    <div
-                                        class="aspect-square w-40 rounded-full overflow-hidden border-4 border-red-500">
-                                        <img class="object-cover w-full" x-bind:src="users.get(eligible).image_url"
-                                            alt="">
+                                    <div class="">
+                                        <img class="object-cover w-40 h-40 border"
+                                            x-bind:src="users.get(eligible).image_url" alt="">
                                     </div>
                                     <div class="text-center font-medium mt-3" x-text="users.get(eligible).name">
                                     </div>
-                                    <div x-show="getCurrentElection().status === 'closed'">
+                                    {{-- <div x-show="getCurrentElection().status === 'closed'">
                                         <div x-text="totalVotesByCandidate(eligible) + ' votos'"></div>
                                         <div
                                             x-text="Math.round(totalVotesByCandidate(eligible) / room.voters.length * 100 * 10) / 10 + '%'">
                                         </div>
-                                    </div>
+                                    </div> --}}
                                 </div>
                             </template>
                         </div>
@@ -179,21 +180,79 @@
                 </template>
 
                 <template x-if="election?.status === 'closed'">
-                    <div class="flex justify-center mt-5 gap-x-3">
-                        <div class="shadow flex-none w-64 p-4">
-                            <div>Votos en blanco</div>
-                            <div x-text="totalVotesByCandidate(null) + ' votos'"></div>
-                            <div
-                                x-text="(Math.round((totalVotesByCandidate(null))  / room.voters.length * 100 * 10) / 10) + '%'">
+                    <div class="w-2xl mx-auto mt-10">
+                        <h2 class="text-xl">
+                            Resultados para <span class="font-medium"
+                                x-text="cargos.get(election.cargo_id).name"></span>
+                        </h2>
+                        <table class="w-full mt-4">
+                            <thead>
+                                <tr class="border-b dark:border-zinc-700">
+                                    <th class="text-sm text-left pb-2">Candidato</th>
+                                    <th class="text-sm text-left pb-2 text-right">Votos</th>
+                                    <th class="text-sm text-left pb-2 text-right">Porcentage</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y dark:divide-zinc-700">
+                                <template x-for="candidateId in election.candidates">
+                                    <tr>
+                                        <td class="py-3">
+                                            <div class="flex items-center gap-x-2">
+                                                <img class="w-12 h-12" :src="users.get(candidateId).image_url"
+                                                    alt="">
+                                                <span x-text="users.get(candidateId).name"></span>
+                                                <flux:icon.crown
+                                                    x-show="totalVotesByCandidate(candidateId) >= votosNesesariosParaGanar"
+                                                    class="text-yellow-500 size-8" />
+                                            </div>
+                                        </td>
+                                        <td class="text-right">
+                                            <span x-text="totalVotesByCandidate(candidateId) + ' votos'"></span>
+                                        </td>
+                                        <td class="text-right">
+                                            <span
+                                                x-text="Math.round(totalVotesByCandidate(candidateId) / room.voters.length * 100 * 10) / 10 + ' %'"></span>
+                                        </td>
+                                    </tr>
+                                </template>
+                                <tr>
+                                    <td class="py-3 pl-14">Votos en blanco</td>
+                                    <td class="text-right">
+                                        <span x-text="totalVotesByCandidate(null) + ' votos'"></span>
+                                    </td>
+                                    <td class="text-right">
+                                        <span
+                                            x-text="(Math.round((totalVotesByCandidate(null))  / room.voters.length * 100 * 10) / 10) + ' %'"></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 pl-14">Votos viciados</td>
+                                    <td class="text-right">
+                                        <span x-text="room.voters.length - getTotalVotes() + ' votos'"></span>
+                                    </td>
+                                    <td class="text-right">
+                                        <span
+                                            x-text="(Math.round((room.voters.length - getTotalVotes())  / room.voters.length * 100 * 10) / 10) + ' %'"></span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        {{-- <div class="flex justify-center gap-x-3">
+                            <div class="shadow flex-none w-64 p-4">
+                                <div>Votos en blanco</div>
+                                <div x-text="totalVotesByCandidate(null) + ' votos'"></div>
+                                <div
+                                    x-text="(Math.round((totalVotesByCandidate(null))  / room.voters.length * 100 * 10) / 10) + '%'">
+                                </div>
                             </div>
-                        </div>
-                        <div class="shadow flex-none w-64 p-4">
-                            <div>Votos viciado</div>
-                            <div x-text="room.voters.length - getTotalVotes() + ' votos'"></div>
-                            <div
-                                x-text="(Math.round((room.voters.length - getTotalVotes())  / room.voters.length * 100 * 10) / 10) + '%'">
+                            <div class="shadow flex-none w-64 p-4">
+                                <div>Votos viciado</div>
+                                <div x-text="room.voters.length - getTotalVotes() + ' votos'"></div>
+                                <div
+                                    x-text="(Math.round((room.voters.length - getTotalVotes())  / room.voters.length * 100 * 10) / 10) + '%'">
+                                </div>
                             </div>
-                        </div>
+                        </div> --}}
                     </div>
                 </template>
 
@@ -230,7 +289,7 @@
                 <div class="fixed bottom-5 left-5 mr-64 flex flex-wrap gap-2">
                     <template x-for="[id, election] in Array.from(elections)">
                         <flux:button x-on:click="currentElectionId = election.id"><span
-                        x-bind:class="id === currentElectionId ? 'text-blue-500' : ''"
+                                x-bind:class="id === currentElectionId ? 'text-blue-500' : ''"
                                 x-text="cargos.get(election.cargo_id).name"></span></flux:button>
                     </template>
                     <flux:button x-on:click="currentElectionId = null">Ninguno</flux:button>
@@ -238,12 +297,14 @@
                 {{-- <flux:button x-on:click="addVoteTest()">Ninguno</flux:button> --}}
             </div>
 
-            <div class="fixed top-0 bottom-0 right-0 w-64 overflow-y-auto bg-white">
+            <div
+                class="fixed top-0 bottom-0 right-0 w-64 overflow-y-auto bg-white dark:bg-zinc-900 border-l dark:border-l-zinc-700">
                 <ul class="p-4 space-y-1">
                     <li>En linea</li>
                     <template x-for="user in online">
                         <li class="flex items-center gap-2">
-                            <div class="flex-none relative flex items-center justify-center border w-8 h-8 rounded-md">
+                            <div
+                                class="flex-none relative flex items-center justify-center border dark:border-zinc-700 w-8 h-8 rounded-md">
                                 <span x-text="users.get(user).name[0].toUpperCase()"></span>
                                 <div x-show="online.some(i => i === user)"
                                     class="absolute h-2 min-w-2 rounded-[3px] bottom-0 right-0 bg-green-500 dark:bg-green-400"
@@ -261,7 +322,8 @@
                     </li>
                     <template x-for="user in room.voters">
                         <li class="flex items-center gap-2">
-                            <div class="flex-none relative flex items-center justify-center border w-8 h-8 rounded-md">
+                            <div
+                                class="flex-none relative flex items-center justify-center border dark:border-zinc-700 w-8 h-8 rounded-md">
                                 <span x-text="users.get(user).name[0].toUpperCase()"></span>
                                 <div x-show="online.some(i => i === user)"
                                     class="absolute h-2 min-w-2 rounded-[3px] bottom-0 right-0 bg-green-500 dark:bg-green-400"
@@ -309,7 +371,7 @@
                 this.toasts.pop(); // 🔥 Si se pasa, elimina el último (abajo)
             }
     
-            setTimeout(() => this.removeToast(id), 3500);
+            setTimeout(() => this.removeToast(id), 5000);
         },
         removeToast(id) {
             this.toasts = this.toasts.filter(t => t.id !== id);
@@ -352,7 +414,7 @@
     @fluxScripts
 
     <script>
-        const data = ({
+        var data = ({
             room: @json($event),
             cargos: new Map(@json($event->cargos).map(c => [c.id, c])),
             currentElectionId: @json($currentElectionId),
@@ -399,6 +461,16 @@
                     .leaving(e => {
                         this.online = this.online.filter(i => i !== e.id);
                         console.log('salio ' + e.name);
+                    })
+                    .listen('RoomUpdated', e => {                        
+                        if (e.data.type === 'election-created') {
+                            this.elections.set(e.data.election.id, {
+                                id: e.data.election.id,
+                                cargo_id: parseInt(e.data.election.cargo_id),
+                                status: e.data.election.status,
+                                candidates: e.data.candidates.map(c => parseInt(c)),
+                            });
+                        }
                     })
                     .listen('UpdateEvent', (e) => {
                         console.log('UpdateEvent', e);
@@ -530,7 +602,11 @@
                     this.getCurrentElection().id).length;
             },
 
-            get votosNesesariosParaGanar(){
+            get votosNesesariosParaGanar() {
+                if (!this.election) {
+                    return 0;
+                }
+
                 if (this.election.candidates.length > 2) {
                     return this.room.voters.length * 2 / 3;
                 }

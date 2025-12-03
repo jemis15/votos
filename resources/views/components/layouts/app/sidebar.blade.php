@@ -11,20 +11,21 @@
                 <x-app-logo />
             </a>
 
-        @if (auth()->user()->role === 'admin')
-            <flux:navlist variant="outline">
-                <flux:navlist.group :heading="__('Platform')" class="grid">
-                    <flux:navlist.item icon="home" :href="route('dashboard')"
-                        :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}
-                    </flux:navlist.item>
+        
+        <flux:navlist variant="outline">
+            <flux:navlist.group :heading="__('Platform')" class="grid">
+                <flux:navlist.item icon="home" :href="route('dashboard')"
+                    :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}
+                </flux:navlist.item>
+                @if (auth()->user()->role === 'admin')
                     <flux:navlist.item icon="calendar" :href="route('events.index')"
                         :current="request()->routeIs('events.index')" wire:navigate>{{ 'Eventos' }}
                     </flux:navlist.item>
                     <flux:navlist.item icon="users" :href="route('users')" :current="request()->routeIs('users')"
                         wire:navigate>{{ 'Usuarios' }}</flux:navlist.item>
-                </flux:navlist.group>
-            </flux:navlist>
-        @endif
+                @endif
+            </flux:navlist.group>
+        </flux:navlist>
 
         <flux:spacer />
 

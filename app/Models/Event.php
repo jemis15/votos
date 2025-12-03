@@ -13,7 +13,8 @@ class Event extends Model
     function candidates(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'room_user', 'room_id')
-            ->wherePivotIn('role_in_room', ['candidate', 'both']);
+            ->wherePivotIn('role_in_room', ['candidate', 'both'])
+            ->withPivot('cargo_id', 'role_in_room');
     }
 
     function voters(): BelongsToMany

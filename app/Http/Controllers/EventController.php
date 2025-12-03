@@ -88,6 +88,9 @@ class EventController extends Controller
             'elections.candidates'
         ]);
 
+        // return $event->candidates;
+        // // dd($event->candidates);
+
         return view('events.show', [
             'event' => $event,
             'cargos' => $event->cargos,

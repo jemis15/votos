@@ -41,7 +41,7 @@
     <div class="overflow-x-auto">
         <table class="w-full text-left">
             <thead>
-                <tr class="border-b">
+                <tr class="border-b dark:border-neutral-700">
                     <td class="pb-3 px-3">Nombre</td>
                     <td class="pb-3 px-3">DNI</td>
                     <td class="pb-3 px-3">Correo</td>
@@ -49,9 +49,9 @@
                     <td class="pb-3 px-3 w-px">Accion</td>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
+            <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
                 @foreach ($users as $user)
-                    <tr class="hover:bg-gray-50">
+                    <tr class="hover:bg-gray-50 dark:hover:bg-neutral-700">
                         <td class="py-2 px-3">
                             <div class="flex items-center gap-x-2">
                                 <flux:avatar src="{{ $user->image_url }}" name="{{ $user->name }}" initials:single />
