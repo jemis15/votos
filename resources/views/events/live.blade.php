@@ -35,15 +35,16 @@
                         <div x-show="show && !myVote?.candidate_id" class="p-4 shadow rounded-md mt-4">Registrate voto
                             en blanco</div>
 
-                        <div x-show="show && myVote?.candidate_id !== null" class="p-4 shadow rounded-md mt-4">
+                        <div x-show="show && myVote?.candidate_id !== null" class="p-4 shadow rounded-md mt-4 dark:border dark:border-zinc-700">
                             <flux:text x-text="cargos.get(election.cargo_id).name" />
-                            <div class="flex items-center gap-x-2 mt-2">
+                            <div class="flex items-center gap-x-4 mt-2">
                                 <div class="w-12 h-12 rounded-md overflow-hidden border">
                                     <img class="w-full h-full object-cover"
                                         :src="users.get(myVote?.candidate_id)?.image_url" alt="">
                                 </div>
                                 <div>
                                     <flux:heading x-text="users.get(myVote?.candidate_id)?.name" />
+                                    <div class="text-sky-500 font-medium" x-text="users.get(myVote?.candidate_id).instance"></div>
                                 </div>
                             </div>
                         </div>
@@ -90,7 +91,11 @@
                                                 x-bind:src="users.get(eligible)?.image_url" alt="">
                                         </template>
                                     </div>
-                                    <flux:heading size="lg" x-text="users.get(eligible)?.name" />
+                                    <div>
+                                        <flux:heading size="lg" x-text="users.get(eligible)?.name" />
+                                        <div class="text-sky-500 font-medium" x-text="users.get(eligible)?.instance">
+                                        </div>
+                                    </div>
                                 </li>
                             </template>
                             <li class="shadow-sm py-6 flex items-center justify-center rounded-md dark:bg-zinc-700 cursor-pointer"
@@ -131,8 +136,9 @@
                                 <img class="w-24 h-24 object-cover" :src="users.get(select).image_url" alt="">
                             </template>
                         </div>
-                        <div class="mt-4 text-sky-500 dark:text-gray-200 font-medium" x-text="users.get(select).name">
+                        <div class="mt-4" x-text="users.get(select).name">
                         </div>
+                        <div class="text-sky-500 font-medium" x-text="users.get(select).instance"></div>
                     </div>
                 </div>
             </template>
@@ -268,6 +274,10 @@
                                 election_id: this.election.id,
                                 candidate_id: this.select
                             });
+                            this.dataCandidateSelected = {
+                                electionId: null,
+                                candidateId: null
+                            };
                         } else if (d.success === false) {
                             alert(d.message);
                         }

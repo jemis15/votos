@@ -46,6 +46,7 @@
                     <td class="pb-3 px-3">DNI</td>
                     <td class="pb-3 px-3">Correo</td>
                     <td class="pb-3 px-3">Tipo</td>
+                    <td class="pb-3 px-3">Instancia</td>
                     <td class="pb-3 px-3 w-px">Accion</td>
                 </tr>
             </thead>
@@ -61,21 +62,27 @@
                         <td class="py-2 px-3">{{ $user->identification }}</td>
                         <td class="py-2 px-3">{{ $user->email }}</td>
                         <td class="py-2 px-3">{{ $user->role }}</td>
+                        <td class="py-2 px-3">{{ $user->instance }}</td>
                         <td class="py-2 px-3">
-                            <div class="flex gap-x-2">
-                                <form action="{{ route('users.reset-password', $user->id) }}" method="post">
-                                    @csrf
+                            <flux:dropdown>
+                                <flux:button icon:trailing="chevron-down">Opciones</flux:button>
 
-                                    <flux:button type="submit">Resetar contraseña</flux:button>
-                                </form>
+                                <flux:menu>
+                                    <flux:menu.item href="{{ route('users.edit', $user->id) }}" icon="pencil-square">
+                                        Editar</flux:menu.item>
+                                    <form action="{{ route('users.reset-password', $user->id) }}" method="post">
+                                        @csrf
+                                        <flux:menu.item as="button" type="submit" icon="lock-open">
+                                            Resetar contraseña
+                                        </flux:menu.item>
+                                    </form>
 
-                                <flux:button href="{{ route('users.edit', $user->id) }}" icon="pencil-square" />
-                                <flux:button href="{{ route('users.delete', $user->id) }}" variant="danger"
-                                    icon="trash" />
-
-                                {{-- <flux:button href="{{ route('events.delete', $event->id) }}" variant="danger">Eliminar
-                                </flux:button> --}}
-                            </div>
+                                    <flux:menu.item href="{{ route('users.delete', $user->id) }}" icon="trash"
+                                        variant="danger">
+                                        Eliminar
+                                    </flux:menu.item>
+                                </flux:menu>
+                            </flux:dropdown>
                         </td>
                     </tr>
                 @endforeach

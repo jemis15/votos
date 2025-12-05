@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('identification', '8')->unique()->after('name');
             $table->string('email')->nullable()->change();
             $table->enum('role', ['admin', 'user'])->default('user')->after('email_verified_at');
+            $table->string('instance', 30)->nullable()->after('role');
+            $table->date('birthdate')->nullable()->after('instance');
         });
     }
 
@@ -29,6 +31,8 @@ return new class extends Migration
             $table->dropColumn('identification');
             $table->dropColumn('role');
             $table->dropColumn('profile_photo_path');
+            $table->dropColumn('instance');
+            $table->dropColumn('birthdate');
         });
     }
 };

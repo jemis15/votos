@@ -131,4 +131,26 @@ class RoomController extends Controller
             'message' => 'Voto registrado'
         ]);
     }
+
+    function report(Event $room, Request $request)
+    {
+        $currentElectionId = $request->query('election_id');
+
+        $elections = $room->elections()
+            // ->where('status', 'closed')
+            ->join('cargos', 'elections.cargo_id', 'cargos.id')
+            ->select('elections.*', 'cargos.name as cargo')
+            ->get();
+
+        $votes = Vote::join('elections', 'votes.election_id', 'elections.id')
+            ->where('elections.event_id', $room->id)
+            ->where('elections.id', $currentElectionId)
+            ->select('votes.*')
+            ->get();
+
+
+        // return $votes;
+
+        return view('rooms.report', compact('room', 'votes', 'currentElectionId', 'elections'));
+    }
 }

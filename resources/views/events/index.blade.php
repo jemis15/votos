@@ -36,6 +36,7 @@
                         </td>
                         <td class="py-2 px-3">
                             <div class="flex gap-x-2">
+                                <flux:button href="{{ route('rooms.report', $event->id) }}">Reporte</flux:button>
                                 <flux:button href="{{ route('events.edit', $event->id) }}">Editar</flux:button>
                                 <flux:button href="{{ route('events.delete', $event->id) }}" variant="danger" icon="trash" />
 

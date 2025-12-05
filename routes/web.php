@@ -98,6 +98,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('rooms/{room}/candidates/{candidate}/edit', [CandidateController::class, 'edit'])->name('rooms.candidates.edit');
     Route::put('rooms/{room}/candidates/{candidate}', [CandidateController::class, 'update'])->name('rooms.candidates.update');
+
+    Route::get('rooms/{room}/report', [RoomController::class, 'report'])->name('rooms.report');
 });
 
 

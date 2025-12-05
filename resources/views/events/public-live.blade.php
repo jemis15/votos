@@ -161,18 +161,15 @@
                         <div class="flex flex-wrap justify-center gap-5 mt-5">
                             <template x-for="eligible in election.candidates">
                                 <div class="relative">
-                                    <div class="">
-                                        <img class="object-cover w-40 h-40 border"
-                                            x-bind:src="users.get(eligible).image_url" alt="">
-                                    </div>
-                                    <div class="text-center font-medium mt-3" x-text="users.get(eligible).name">
-                                    </div>
-                                    {{-- <div x-show="getCurrentElection().status === 'closed'">
-                                        <div x-text="totalVotesByCandidate(eligible) + ' votos'"></div>
-                                        <div
-                                            x-text="Math.round(totalVotesByCandidate(eligible) / room.voters.length * 100 * 10) / 10 + '%'">
+                                    <img class="object-cover w-40 aspect-square border"
+                                        x-bind:src="users.get(eligible).image_url" alt="">
+                                    <div class="w-40">
+                                        <div class="text-center font-medium mt-3" x-text="users.get(eligible).name">
                                         </div>
-                                    </div> --}}
+                                        <div class="text-center text-sky-600 dark:text-sky-500"
+                                            x-text="users.get(eligible).instance">
+                                        </div>
+                                    </div>
                                 </div>
                             </template>
                         </div>
@@ -200,7 +197,10 @@
                                             <div class="flex items-center gap-x-2">
                                                 <img class="w-12 h-12" :src="users.get(candidateId).image_url"
                                                     alt="">
-                                                <span x-text="users.get(candidateId).name"></span>
+                                                <div>
+                                                    <div x-text="users.get(candidateId).name"></div>
+                                                    <div class="text-sky-500 font-medium" x-text="users.get(candidateId).instance"></div>
+                                                </div>
                                                 <flux:icon.crown
                                                     x-show="totalVotesByCandidate(candidateId) >= votosNesesariosParaGanar"
                                                     class="text-yellow-500 size-8" />
@@ -462,7 +462,7 @@
                         this.online = this.online.filter(i => i !== e.id);
                         console.log('salio ' + e.name);
                     })
-                    .listen('RoomUpdated', e => {                        
+                    .listen('RoomUpdated', e => {
                         if (e.data.type === 'election-created') {
                             this.elections.set(e.data.election.id, {
                                 id: e.data.election.id,

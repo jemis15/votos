@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
 {
@@ -27,19 +28,21 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:100',
             'identification' => 'required|string|digits:8|unique:users,identification',
-            'email' => 'nullable|string|max:100|unique:users,email',
+            'email' => 'required|string|max:100|unique:users,email',
+            'password' => ['nullable', 'string', Password::defaults()],
+            'instance' => 'nullable|string|max:30',
+            'birthdate' => 'nullable|date',
             'profile_photo_path' => 'nullable|image|max:2048',
         ]);
 
-        $path = null;
         if ($request->hasFile('profile_photo_path')) {
             $path = $request->file('profile_photo_path')->store('profiles', 'public');
         }
 
         $user = new User();
-        $user->fill($request->only('name', 'identification', 'email'));
-        $user->profile_photo_path = $path;
-        $user->password = Hash::make($request->identification);
+        $user->fill($request->only('name', 'identification', 'email', 'instance', 'birthdate'));
+        $user->profile_photo_path = $path ?? null;
+        $user->password = Hash::make($request->password ?? $request->identification);
         $user->save();
 
         return redirect()->route('users')->with('success', 'Usuario creado.');
@@ -56,6 +59,9 @@ class UserController extends Controller
             'name' => 'required|string|max:100',
             'identification' => 'required|string|digits:8|unique:users,identification,' . $user->id,
             'email' => 'nullable|string|max:100|unique:users,email,' . $user->id,
+            'password' => ['nullable', 'string', Password::defaults()],
+            'instance' => 'nullable|string|max:30',
+            'birthdate' => 'nullable|date',
             'profile_photo_path' => 'nullable|image|max:2048'
         ]);
 
@@ -69,30 +75,39 @@ class UserController extends Controller
             $user->profile_photo_path = $path;
         }
 
-        $user->fill($request->only('name', 'identification', 'email'));
+        $user->fill($request->only('name', 'identification', 'email', 'instance', 'birthdate'));
+
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+
         $user->save();
 
         return redirect()->route('users')->with('success', 'Usuario actualizado.');
     }
-    
-    function delete(User $user) {
+
+    function delete(User $user)
+    {
         return view('users.delete', compact('user'));
     }
-    
-    function destroy(User $user) {
+
+    function destroy(User $user)
+    {
         $user->delete();
-        
+
         return redirect()->route('users')->with('success', 'Usuario eliminado.');
     }
-    
-    function resetPassword(User $user) {
+
+    function resetPassword(User $user)
+    {
         $user->password = Hash::make($user->identification);
         $user->save();
-        
+
         return redirect()->route('users')->with('success', 'Contraseña restablecido.');
     }
 
-    function import(Request $request) {
+    function import(Request $request)
+    {
         $request->validate([
             'file_users' => 'required|file|mimetypes:text/plain,text/csv,application/csv,application/vnd.ms-excel'
         ]);

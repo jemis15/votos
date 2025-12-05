@@ -117,7 +117,15 @@ class EventController extends Controller
         ]);
 
         $event->users = User::join('room_user', 'users.id', 'room_user.user_id')
-            ->select('users.id', 'users.name', 'users.identification', 'room_user.role_in_room', 'cargo_id', 'profile_photo_path')
+            ->select(
+                'users.id',
+                'users.name',
+                'users.identification',
+                'room_user.role_in_room',
+                'cargo_id',
+                'profile_photo_path',
+                'instance'
+            )
             ->get();
 
         $event->votes = Vote::whereIn('election_id', $event->elections->pluck('id'))
