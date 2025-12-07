@@ -199,7 +199,8 @@
                                                     alt="">
                                                 <div>
                                                     <div x-text="users.get(candidateId).name"></div>
-                                                    <div class="text-sky-500 font-medium" x-text="users.get(candidateId).instance"></div>
+                                                    <div class="text-sky-500 font-medium"
+                                                        x-text="users.get(candidateId).instance"></div>
                                                 </div>
                                                 <flux:icon.crown
                                                     x-show="totalVotesByCandidate(candidateId) >= votosNesesariosParaGanar"
@@ -297,44 +298,81 @@
                 {{-- <flux:button x-on:click="addVoteTest()">Ninguno</flux:button> --}}
             </div>
 
-            <div
-                class="fixed top-0 bottom-0 right-0 w-64 overflow-y-auto bg-white dark:bg-zinc-900 border-l dark:border-l-zinc-700">
-                <ul class="p-4 space-y-1">
-                    <li>En linea</li>
-                    <template x-for="user in online">
-                        <li class="flex items-center gap-2">
-                            <div
-                                class="flex-none relative flex items-center justify-center border dark:border-zinc-700 w-8 h-8 rounded-md">
-                                <span x-text="users.get(user).name[0].toUpperCase()"></span>
-                                <div x-show="online.some(i => i === user)"
-                                    class="absolute h-2 min-w-2 rounded-[3px] bottom-0 right-0 bg-green-500 dark:bg-green-400"
-                                    aria-hidden="true"></div>
-                            </div>
-                            <div x-text="users.get(user).name" class="truncate flex-1"></div>
-                        </li>
-                    </template>
-                </ul>
+            <div x-data="{ tab: 0 }"
+                class="flex flex-col fixed top-0 bottom-0 right-0 w-64 overflow-y-hidden bg-white dark:bg-zinc-900 border-l dark:border-l-zinc-700">
+                <div class="flex">
+                    <button class="px-3 py-2 border flex-1" x-on:click="tab = 0">Participantes</button>
+                    <button class="px-3 py-2 border flex-1" x-on:click="tab = 1">Registros</button>
+                </div>
 
-                <ul class="p-4 space-y-1">
-                    <li>
-                        Votantes
-                        <flux:badge x-text="'En linea ' + votantesActivos()" color="green"></flux:badge>
-                    </li>
-                    <template x-for="user in room.voters">
-                        <li class="flex items-center gap-2">
-                            <div
-                                class="flex-none relative flex items-center justify-center border dark:border-zinc-700 w-8 h-8 rounded-md">
-                                <span x-text="users.get(user).name[0].toUpperCase()"></span>
-                                <div x-show="online.some(i => i === user)"
-                                    class="absolute h-2 min-w-2 rounded-[3px] bottom-0 right-0 bg-green-500 dark:bg-green-400"
-                                    aria-hidden="true"></div>
+                <template x-if="tab === 0">
+                    <div class="overflow-y-auto flex-1">
+                        <ul class="p-4 space-y-1">
+                            <li>En linea</li>
+                            <template x-for="user in online">
+                                <li class="flex items-center gap-2">
+                                    <div
+                                        class="flex-none relative flex items-center justify-center border dark:border-zinc-700 w-8 h-8 rounded-md">
+                                        <span x-show="!users.get(user).image_url"
+                                            x-text="users.get(user).name[0].toUpperCase()"></span>
+                                        <img x-show="users.get(user).image_url" class="w-full h-full"
+                                            :src="users.get(user).image_url" alt="">
+                                        <div x-show="online.some(i => i === user)"
+                                            class="absolute h-2 min-w-2 rounded-[3px] bottom-0 right-0 bg-green-500 dark:bg-green-400"
+                                            aria-hidden="true"></div>
+                                    </div>
+                                    <div x-text="users.get(user).name" class="truncate flex-1"></div>
+                                </li>
+                            </template>
+                        </ul>
+
+                        <ul class="p-4 space-y-1">
+                            <li>
+                                Votantes
+                                <flux:badge x-text="'En linea ' + votantesActivos()" color="green"></flux:badge>
+                            </li>
+                            <template x-for="user in room.voters">
+                                <li class="flex items-center gap-2">
+                                    <div
+                                        class="flex-none relative flex items-center justify-center border dark:border-zinc-700 w-8 h-8 rounded-md overflow-hidden">
+                                        <span x-show="!users.get(user).image_url"
+                                            x-text="users.get(user).name[0].toUpperCase()"></span>
+                                        <img x-show="users.get(user).image_url" class="w-full h-full"
+                                            :src="users.get(user).image_url" alt="">
+                                        <div x-show="online.some(i => i === user)"
+                                            class="absolute h-2 min-w-2 rounded-[3px] bottom-0 right-0 bg-green-500 dark:bg-green-400"
+                                            aria-hidden="true"></div>
+                                    </div>
+                                    <div x-text="users.get(user).name" class="truncate flex-1"></div>
+                                    <div x-show="room.votes.some(i => i.voter_id == user && i.election_id === currentElectionId)"
+                                        class="w-2 h-2 rounded-full bg-blue-500"></div>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </template>
+
+                <template x-if="tab === 1">
+                    <div class="overflow-y-auto flex-1">
+                        <template x-for="log in room.votes.filter(i => i.election_id === election.id)">
+                            {{-- <template x-for="log in room.votes"> --}}
+                            <div class="flex gap-x-2 px-3 py-2">
+                                <div
+                                    class="w-6 h-6 border rounded-md overflow-hidden flex items-center justify-center">
+                                    <span x-show="!users.get(log.voter_id).image_url"
+                                        x-text="users.get(log.voter_id).name[0].toUpperCase()"></span>
+                                    <img x-show="users.get(log.voter_id).image_url" class="w-full h-full"
+                                        :src="users.get(log.voter_id).image_url" alt="">
+                                </div>
+                                <div>
+                                    <div class="text-sm text-gray-700 font-medium"
+                                        x-text="users.get(log.voter_id).name"></div>
+                                    <div class="text-sm text-gray-500" x-text="'Registro su voto'"></div>
+                                </div>
                             </div>
-                            <div x-text="users.get(user).name" class="truncate flex-1"></div>
-                            <div x-show="room.votes.some(i => i.voter_id == user && i.election_id === currentElectionId)"
-                                class="w-2 h-2 rounded-full bg-blue-500"></div>
-                        </li>
-                    </template>
-                </ul>
+                        </template>
+                    </div>
+                </template>
             </div>
         </div>
     </template>
@@ -427,6 +465,7 @@
             users: new Map(@json($event->users).map(u => [u.id, u])),
             elections: new Map(@json($event->elections).map(e => [e.id, e])),
             online: [],
+            logs: [],
 
             init() {
                 window.Echo.join(`events.{{ $event->id }}`)
@@ -488,7 +527,6 @@
                                 nombre: `${this.users.get(e.vote.voter_id).name}`,
                             }
                         }));
-
                     })
                     .listen('ElectionToggleStatusEvent', e => {
                         console.log(e);
